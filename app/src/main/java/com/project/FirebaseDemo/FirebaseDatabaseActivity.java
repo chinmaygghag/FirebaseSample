@@ -1,10 +1,12 @@
 package com.project.FirebaseDemo;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.DataSnapshot;
@@ -13,9 +15,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class FirebaseDatabaseActivity extends AppCompatActivity {
 
     private RecyclerView rvMainList;
@@ -23,6 +22,7 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
     private FirebaseApp fApp;
     private FirebaseOptions fopts;
     private DemoData demoData;
+    private FirebaseRecyclerAdapter<DemoData, FirebaseDemoAdapter.FirebaseDemoViewHolder> adapter;
 
 
     @Override
@@ -38,18 +38,21 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
     }
 
     private void updateData() {
-
-
-
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myref = database.getReference();
-
-        DemoData data = new DemoData();
+        adapter = new FirebaseDemoAdapter(DemoData.class, R.layout.item_text_row,
+                FirebaseDemoAdapter.FirebaseDemoViewHolder.class, myref);
+        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
+        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        rvMainList.setHasFixedSize(true);
+        rvMainList.setAdapter(adapter);
+        rvMainList.setLayoutManager(mLinearLayoutManager);
+        /*DemoData data = new DemoData();
         data.setName("Didi");
         data.setRegistrationNumber(1233);
         Map<String, Object> postValues = data.toMap();
 
-        myref.child("demodata").updateChildren(postValues);
+        myref.child("demodata").updateChildren(postValues);*/
 //        myref.updateChildren(updateValues);
     }
 
@@ -64,6 +67,7 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 DemoData demo = dataSnapshot.getValue(DemoData.class);
+
                 Log.i("frost", "onDataChange: " + dataSnapshot.getKey());
 
             }
@@ -85,15 +89,13 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
         demoData.setName("abc");
         demoData.setRegistrationNumber(123);
         DatabaseReference myRef = database.getReference();
-        DatabaseReference mRef1 = database.getReference();
-        mRef1.child("test").setValue("Hello World!");
-        mRef1.push();
         myRef.child("demodata").setValue(demoData);
         myRef.push();
     }
 
     private void initUI() {
         rvMainList = (RecyclerView) findViewById(R.id.rv_main_list);
+
     }
 
 
