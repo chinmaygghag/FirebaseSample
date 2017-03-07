@@ -1,10 +1,12 @@
 package com.project.FirebaseDemo;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.DataSnapshot;
@@ -13,7 +15,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class FirebaseDatabaseActivity extends AppCompatActivity {
@@ -23,6 +24,7 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
     private FirebaseApp fApp;
     private FirebaseOptions fopts;
     private DemoData demoData;
+    private FirebaseRecyclerAdapter<DemoData, FirebaseDemoViewHolder> adapter;
 
 
     @Override
@@ -32,15 +34,46 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
         fopts = new FirebaseOptions.Builder().setDatabaseUrl(firebaseURL).setApplicationId("fir-demo-65c25").build();
         fApp = FirebaseApp.initializeApp(this, fopts, "firebase_demo");
         initUI();
-        setData();
+//        setData();
         getData();
-        updateData();
+        populateUIInRecyclerView();
+    }
+
+    private void populateUIInRecyclerView() {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference mDatabaseReference = db.getReference();
+        Log.i("frost", "populateUIInRecyclerView: "+mDatabaseReference.child("demodata").child("name").getRef());
+         adapter = new FirebaseRecyclerAdapter<DemoData, FirebaseDemoViewHolder>(
+                DemoData.class,
+                R.layout.item_text_row,
+                FirebaseDemoViewHolder.class,
+                //referencing the node where we want the database to store the data from our Object
+                 mDatabaseReference
+        ) {
+            @Override
+            protected void populateViewHolder(FirebaseDemoViewHolder viewHolder, DemoData model, int position) {
+                viewHolder.textView.setText(model.getName());
+             }
+        };
+
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+            }
+
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                Log.d("frost", "onItemRangeInserted: "+adapter.getItemCount());
+            }
+        });
+
+        rvMainList.setAdapter(adapter);
+        Log.i("frost", "populateUIInRecyclerView: adapter "+adapter.getItemCount());
     }
 
     private void updateData() {
-
-
-
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myref = database.getReference();
 
@@ -85,15 +118,16 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
         demoData.setName("abc");
         demoData.setRegistrationNumber(123);
         DatabaseReference myRef = database.getReference();
-        DatabaseReference mRef1 = database.getReference();
-        mRef1.child("test").setValue("Hello World!");
-        mRef1.push();
-        myRef.child("demodata").setValue(demoData);
+        myRef.child("demodata2").setValue(demoData);
         myRef.push();
     }
 
     private void initUI() {
         rvMainList = (RecyclerView) findViewById(R.id.rv_main_list);
+        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
+        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        rvMainList.setHasFixedSize(true);
+        rvMainList.setLayoutManager(mLinearLayoutManager);
     }
 
 
