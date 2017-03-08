@@ -15,6 +15,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 public class FirebaseDatabaseActivity extends AppCompatActivity {
 
     private RecyclerView rvMainList;
@@ -23,6 +26,7 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
     private FirebaseOptions fopts;
     private DemoData demoData;
     private FirebaseRecyclerAdapter<DemoData, FirebaseDemoAdapter.FirebaseDemoViewHolder> adapter;
+    private ArrayList<String> listData = new ArrayList<>();
 
 
     @Override
@@ -34,14 +38,14 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
         initUI();
         setData();
         getData();
-        updateData();
+//        updateData();
     }
 
     private void updateData() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myref = database.getReference();
         adapter = new FirebaseDemoAdapter(DemoData.class, R.layout.item_text_row,
-                FirebaseDemoAdapter.FirebaseDemoViewHolder.class, myref);
+                FirebaseDemoAdapter.FirebaseDemoViewHolder.class, myref, this,listData);
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvMainList.setHasFixedSize(true);
@@ -61,15 +65,21 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
      * retrieve data from firebase
      **/
     private void getData() {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myref = database.getReference("demodata");
-        ValueEventListener listener = new ValueEventListener() {
+
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference myref = database.getReference();
+        final ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 DemoData demo = dataSnapshot.getValue(DemoData.class);
-
-                Log.i("frost", "onDataChange: " + dataSnapshot.getKey());
-
+                listData = collectNames((Map<String,Object>) dataSnapshot.getValue());
+                adapter = new FirebaseDemoAdapter(DemoData.class, R.layout.item_text_row,
+                        FirebaseDemoAdapter.FirebaseDemoViewHolder.class, myref, FirebaseDatabaseActivity.this,listData);
+                LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(FirebaseDatabaseActivity.this);
+                mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                rvMainList.setHasFixedSize(true);
+                rvMainList.setAdapter(adapter);
+                rvMainList.setLayoutManager(mLinearLayoutManager);
             }
 
             @Override
@@ -79,6 +89,23 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
         };
         myref.addValueEventListener(listener);
     }
+
+    private ArrayList<String> collectNames(Map<String,Object> users) {
+
+        ArrayList<String> phoneNumbers = new ArrayList<>();
+
+        //iterate through each user, ignoring their UID
+        for (Map.Entry<String, Object> entry : users.entrySet()){
+
+            //Get user map
+            Map singleUser = (Map) entry.getValue();
+            //Get phone field and append to list
+            phoneNumbers.add((String) singleUser.get("name"));
+        }
+        Log.i("frost", "collectNames: "+phoneNumbers.size());
+        return phoneNumbers;
+    }
+
 
     /**
      * set data to firebase

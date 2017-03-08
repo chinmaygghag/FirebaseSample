@@ -1,18 +1,25 @@
 package com.project.FirebaseDemo;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.Query;
+
+import java.util.ArrayList;
 
 /**
  * Created by chinmay on 3/3/17.
  */
 
 public class FirebaseDemoAdapter extends FirebaseRecyclerAdapter<DemoData, FirebaseDemoAdapter.FirebaseDemoViewHolder> {
+
+   private ArrayList<String> listData;
 
 
     /**
@@ -23,9 +30,16 @@ public class FirebaseDemoAdapter extends FirebaseRecyclerAdapter<DemoData, Fireb
      * @param ref             The Firebase location to watch for data changes. Can also be a slice of a location, using some
      *                        combination of {@code limit()}, {@code startAt()}, and {@code endAt()}.
      */
-    public FirebaseDemoAdapter(Class<DemoData> modelClass, int modelLayout, Class<FirebaseDemoViewHolder> viewHolderClass, Query ref) {
+    public FirebaseDemoAdapter(Class<DemoData> modelClass, int modelLayout, Class<FirebaseDemoViewHolder> viewHolderClass, Query ref, Context context, ArrayList<String> listData) {
         super(modelClass, modelLayout, viewHolderClass, ref);
-        Log.i("frost", "FirebaseDemoAdapter: ");
+        this.listData = listData;
+        Log.i("frost", "FirebaseDemoAdapter: "+listData.size());
+    }
+
+    @Override
+    public FirebaseDemoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_text_row,parent,false);
+        return new FirebaseDemoViewHolder(view);
     }
 
     @Override
@@ -37,8 +51,9 @@ public class FirebaseDemoAdapter extends FirebaseRecyclerAdapter<DemoData, Fireb
 
     @Override
     public int getItemCount() {
-        return 0;
-    }
+        Log.i("frost", "getItemCount: "+listData.size());
+        return listData.size();
+     }
 
     public class FirebaseDemoViewHolder extends RecyclerView.ViewHolder {
 
