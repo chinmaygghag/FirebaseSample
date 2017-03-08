@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.FirebaseApp;
@@ -38,31 +37,11 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
         initUI();
         setData();
         getData();
-//        updateData();
-    }
-
-    private void updateData() {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myref = database.getReference();
-        adapter = new FirebaseDemoAdapter(DemoData.class, R.layout.item_text_row,
-                FirebaseDemoAdapter.FirebaseDemoViewHolder.class, myref, this,listData);
-        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
-        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        rvMainList.setHasFixedSize(true);
-        rvMainList.setAdapter(adapter);
-        rvMainList.setLayoutManager(mLinearLayoutManager);
-        /*DemoData data = new DemoData();
-        data.setName("Didi");
-        data.setRegistrationNumber(1233);
-        Map<String, Object> postValues = data.toMap();
-
-        myref.child("demodata").updateChildren(postValues);*/
-//        myref.updateChildren(updateValues);
     }
 
 
     /**
-     * retrieve data from firebase
+     * retrieve data from firebase and set it to recyclerview
      **/
     private void getData() {
 
@@ -102,7 +81,6 @@ public class FirebaseDatabaseActivity extends AppCompatActivity {
             //Get phone field and append to list
             phoneNumbers.add((String) singleUser.get("name"));
         }
-        Log.i("frost", "collectNames: "+phoneNumbers.size());
         return phoneNumbers;
     }
 

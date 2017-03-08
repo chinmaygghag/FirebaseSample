@@ -2,7 +2,6 @@ package com.project.FirebaseDemo;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +32,6 @@ public class FirebaseDemoAdapter extends FirebaseRecyclerAdapter<DemoData, Fireb
     public FirebaseDemoAdapter(Class<DemoData> modelClass, int modelLayout, Class<FirebaseDemoViewHolder> viewHolderClass, Query ref, Context context, ArrayList<String> listData) {
         super(modelClass, modelLayout, viewHolderClass, ref);
         this.listData = listData;
-        Log.i("frost", "FirebaseDemoAdapter: "+listData.size());
     }
 
     @Override
@@ -44,14 +42,12 @@ public class FirebaseDemoAdapter extends FirebaseRecyclerAdapter<DemoData, Fireb
 
     @Override
     protected void populateViewHolder(FirebaseDemoViewHolder viewHolder, DemoData model, int position) {
-        Log.i("frost", "populateViewHolder: ");
         viewHolder.tvTest.setText(model.getName());
     }
 
 
     @Override
     public int getItemCount() {
-        Log.i("frost", "getItemCount: "+listData.size());
         return listData.size();
      }
 
